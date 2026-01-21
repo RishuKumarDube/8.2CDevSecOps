@@ -1,5 +1,13 @@
 pipeline {
     agent any
+    
+    environment {
+        RECIPIENTS = 'rishukrdube@gmail.com'
+    }
+    
+    tools {
+        nodejs 'node18'
+    }
 
     triggers {
         pollSCM('H/5 * * * *')
@@ -37,5 +45,40 @@ pipeline {
                 bat 'npm audit || exit /b 0'
             }
         }
+    }
+    post {
+
+        success {
+
+            emailext(
+
+                subject: "Jenkins Pipeline Success: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+
+                body: "Pipeline executed successfully. Check console output: ${env.BUILD_URL}",
+
+                to: "${env.RECIPIENTS}",
+
+                attachLog: true
+
+            )
+
+        }
+
+        failure {
+
+            emailext(
+
+                subject: "Jenkins Pipeline Failed: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+
+                body: "Pipeline failed. Check console output: ${env.BUILD_URL}",
+
+                to: "${env.RECIPIENTS}",
+
+                attachLog: true
+
+            )
+
+        }
+
     }
 }
